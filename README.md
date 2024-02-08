@@ -97,3 +97,31 @@ Argumentos:
 - clearAuthSessionDataToLocalStorage: Elimina los datos de la sesión guardados en localStorage utilizando los valores globales asignados para authStorageKey.
 
 - clearAuthSessionDataToSessionStorage: Elimina los datos de la sesión guardados en sessionStorage utilizando los valores globales asignados para authStorageKey.
+
+- getAuthUser: Recupera los datos de un usuario (AuthSessionUser | undefined)
+
+- getRoles: Recupera los roles del usuario (string[])
+
+- hasRole: Recupera true si el usuario tiene el rol
+
+- hasSomeRoles: Recupera true si el usuario tiene almenos uno de los roles de la lista
+
+- hasAllRoles: Recupera true solo si el usuario tiene todos los roles de la lista
+
+- getPermissions: Recupera los permisos del usuario (SessionDataPermission[])
+
+- hasPermission: Recupera true si el usuario tiene permisos para el recurso
+
+- hasSomePermissions: Recupera true si el usuario tiene alguno de los permisos para alguno de los recursos
+
+- hasAllPermissions: Recupera true solo si el usuario tiene todos los permisos para todos los recursos
+
+- getJWT: Recupera el JWT asignado a la sesión
+
+- getSessionDataFragment: Recupera un fragmento graphql con los datos de la sesión
+
+- login: Ejecuta el query graphql para hacer login
+
+- logout: Limpia los datos de la sesión (Por el momento no envia solicitud al api para cerrar sesión)
+
+- getSessionData: Recupera los datos de la sesión de un usuario logueado
