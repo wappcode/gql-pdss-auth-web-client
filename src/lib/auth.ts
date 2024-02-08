@@ -7,7 +7,7 @@ import {
   throwGQLErrors
 } from 'graphql-client-utilities';
 import { SessionData } from '../models/auth-session-data';
-import { clearAuthSessionData, getAuthSessionData } from './session-storage';
+import { clearAuthSessionData, getAuthSessionData, setAuthSessionData } from './session-storage';
 
 export const isSigned = (): boolean => {
   const data = getAuthSessionData();
@@ -108,7 +108,8 @@ export const login = async (
 
   return queryExecutor<{ sessionData: SessionData }>(query, { username, password })
     .then(throwGQLErrors)
-    .then((result) => result.data.sessionData);
+    .then((result) => result.data.sessionData)
+    .then(setAuthSessionData);
 };
 
 export const logout = async (): Promise<void> => {

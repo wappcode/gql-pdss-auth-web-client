@@ -57,10 +57,9 @@ Libreria con utilidades para la api gql-pdss-auth
 Argumentos:
 
 - data: SessionData
-- lifetimeInMiliSeconds: number
 
 ```
-    setAuthSessionData(data,lifetimeInMiliSeconds);
+    setAuthSessionData(data);
 ```
 
 - getAuthSessionData: Recupera los datos de la sesión utilizando los valores globales asignados para authStorageKey, authStorage y authStorageTimeLife.
