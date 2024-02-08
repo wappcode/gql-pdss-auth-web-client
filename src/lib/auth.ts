@@ -115,3 +115,22 @@ export const login = async (
 export const logout = async (): Promise<void> => {
   clearAuthSessionData();
 };
+
+export const getSessionData = async (
+  queryExecutor: QueryExecutor,
+  fragment?: GQLQueryData
+): Promise<SessionData | undefined> => {
+  const finalFragment = fragment ? queryDataToQueryObject(fragment) : getSessionDataFragment();
+  const query = gqlparse`
+  query QuerySignedUser{
+    sessionData: getSessionData{
+      ...${finalFragment.operationName}
+    }
+  }
+  ${finalFragment.query}
+  `;
+  return queryExecutor<{ sessionData: SessionData }>(query)
+    .then(throwGQLErrors)
+    .then((result) => result.data.sessionData)
+    .then(setAuthSessionData);
+};

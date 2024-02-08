@@ -1,3 +1,4 @@
 import { createQueryExecutor } from 'graphql-client-utilities';
 
-export const queryExecutor = createQueryExecutor('http://localhost:8080/api');
+export const API_URL = 'http://localhost:8080/api';
+export const queryExecutor = createQueryExecutor(API_URL);
