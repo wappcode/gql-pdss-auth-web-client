@@ -1,4 +1,5 @@
-import { SessionData } from '../models/auth-session-data';
+import { AuthSession, AuthSessionUser } from '../models';
+import { SessionData, SessionDataPermission } from '../models/auth-session-data';
 import { AuthSessionStorage, SessionDataStored } from '../models/auth-session-storage';
 import { getCookie, setCookie } from './cookies';
 
@@ -9,6 +10,17 @@ let authStorage: AuthSessionStorage | undefined;
 let authStorageTimeLife: number;
 let authSessiondataStored: SessionDataStored | undefined;
 
+const stringToJson = <T>(value?: string): T | undefined => {
+  if (typeof value !== 'string' || value.trim().length < 1) {
+    return undefined;
+  }
+  try {
+    const data: T = JSON.parse(value);
+    return data;
+  } catch (e) {
+    console.error(e);
+  }
+};
 const getAuthSessionDataFromBrowserStorage = (storage: Storage): SessionData | undefined => {
   const key = getAuthStorageKey();
   const dataString = storage.getItem(key);
@@ -94,17 +106,26 @@ export const getAuthSessionDataFromSessionStorage = () => {
 
 export const getAuthSessionDataFromCookies = (): SessionData | undefined => {
   const key = getAuthStorageKey();
+  const dataKey = `${key}__data`;
+  const userKey = `${key}__user`;
+  const rolesKey = `${key}__roles`;
+  const permissionsKey = `${key}__permissions`;
+  const jwtKey = `${key}__jwt`;
+  const dataStr = getCookie(dataKey);
+  const userStr = getCookie(userKey);
+  const rolesStr = getCookie(rolesKey);
+  const permissionsStr = getCookie(permissionsKey);
+  const jwt = getCookie(jwtKey);
 
-  const dataString = getCookie(key);
-  if (typeof dataString !== 'string' || dataString.trim().length < 1) {
+  const data = stringToJson<AuthSession>(dataStr);
+  const user = stringToJson<AuthSessionUser>(userStr);
+  const roles = stringToJson<string[]>(rolesStr);
+  const permissions = stringToJson<SessionDataPermission[]>(permissionsStr);
+
+  if (!data || !user) {
     return undefined;
   }
-  try {
-    const data: SessionData = JSON.parse(dataString);
-    return data;
-  } catch (e) {
-    console.error(e);
-  }
+  return { data, user, roles, permissions, jwt };
 };
 
 export const setAuthSessionDataToSessionStorage = (
@@ -120,9 +141,33 @@ export const setAuthSessionDataToLocalStorage = (
   setAuthSessionDataToBrowserStorage(window.localStorage, data, lifetimeInMiliSeconds);
 };
 export const setAuthSessionDataToCookies = (data: SessionData, lifetimeInMiliSeconds: number) => {
-  const dataStr = JSON.stringify(data);
   const key = getAuthStorageKey();
-  setCookie(key, dataStr, lifetimeInMiliSeconds);
+  const sessionData = data.data;
+  const user = data.user;
+  const roles = data.roles ?? [];
+  const permissions = data.permissions ?? [];
+  const jwt = data.jwt;
+
+  const sessionDataStr = JSON.stringify(sessionData);
+  const sessionDataKey = `${key}__data`;
+  setCookie(sessionDataKey, sessionDataStr, lifetimeInMiliSeconds);
+
+  const userStr = JSON.stringify(user);
+  const userKey = `${key}__user`;
+  setCookie(userKey, userStr, lifetimeInMiliSeconds);
+
+  const rolesStr = JSON.stringify(roles);
+  const rolesKey = `${key}__roles`;
+  setCookie(rolesKey, rolesStr, lifetimeInMiliSeconds);
+
+  const permissionsStr = JSON.stringify(permissions);
+  const permissionsKey = `${key}__permissions`;
+  setCookie(permissionsKey, permissionsStr, lifetimeInMiliSeconds);
+
+  if (typeof jwt === 'string' && jwt.length > 0) {
+    const jwtKey = `${key}__jwt`;
+    setCookie(jwtKey, jwt, lifetimeInMiliSeconds);
+  }
 };
 export const setAuthSessionDataToScript = (data: SessionData, lifetimeInMiliSeconds: number) => {
   const expires = new Date();
