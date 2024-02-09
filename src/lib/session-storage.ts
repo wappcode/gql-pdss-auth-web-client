@@ -75,7 +75,7 @@ export const getAuthStorageKey = (): string => {
 };
 
 export const setAuthStorage = (storage: AuthSessionStorage) => {
-  if (typeof storage === 'string' && storage.length > 0) {
+  if (typeof authStorage === 'string' && authStorage.length > 0) {
     throw new Error('Set auth storage more than once is not allowed');
   }
   authStorage = storage;
