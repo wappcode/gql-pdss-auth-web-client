@@ -78,6 +78,25 @@ export const getPermissions = (): SessionDataPermission[] => {
   const permissions = data?.permissions ?? [];
   return permissions;
 };
+
+/**
+ * Recupera el permiso activo mas reciente que tenga acceso allowed
+ * Si el permiso activo tiene access deny retorna undefined
+ * @param resource
+ * @param permissionValue
+ * @returns
+ */
+export const findPermission = (
+  resource: string,
+  permissionValue: string
+): SessionDataPermission | undefined => {
+  const data = getAuthSessionData();
+  const userPermissions = data?.permissions ?? [];
+  const permission = userPermissions.find(
+    (perm) => perm.resource == resource && (perm.value == permissionValue || perm.value == 'ALL')
+  );
+  return permission?.access == 'ALLOW' ? permission : undefined;
+};
 /**
  * Recupera true si el usuario tiene permisos para el recurso
  * @param resource
@@ -90,14 +109,13 @@ export const hasPermission = (
   permissionValue: string,
   scope?: string
 ): boolean => {
-  const data = getAuthSessionData();
-  const userPermissions = data?.permissions ?? [];
-  const permission = userPermissions.find(
-    (perm) =>
-      perm.resource == resource &&
-      (perm.value == permissionValue || perm.value == 'ALL') &&
-      perm.scope == scope
-  );
+  const permission = findPermission(resource, permissionValue);
+  if (!permission) {
+    return false;
+  }
+  if (typeof scope === 'string' && scope.length > 0 && scope != permission.scope) {
+    return false;
+  }
   return permission?.access == 'ALLOW';
 };
 

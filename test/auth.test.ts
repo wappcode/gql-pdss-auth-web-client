@@ -38,24 +38,26 @@ const sessionData: SessionData = {
     {
       resource: 'a',
       value: 'ALL',
-      access: 'ALLOW'
+      access: 'ALLOW',
+      scope: 'ALL'
     },
     {
       resource: 'a',
       value: 'ALL',
       access: 'ALLOW',
-      scope: 'ALL'
+      scope: 'XXXXX'
     },
     {
       resource: 'b',
       value: 'ALL',
-      access: 'DENY'
+      access: 'DENY',
+      scope: 'ALL'
     },
     {
       resource: 'b',
       value: 'VIEW',
       access: 'ALLOW',
-      scope: 'ALL'
+      scope: 'YYYY'
     },
     {
       resource: 'c',
@@ -152,17 +154,17 @@ describe('Tests generales para auth', async () => {
     expect(permissionBDeny).toBeFalsy();
 
     const permissionBViewScopedAllow = hasPermission('b', 'VIEW', 'ALL');
-    expect(permissionBViewScopedAllow).toBeTruthy();
+    expect(permissionBViewScopedAllow).toBeFalsy();
 
     const permissionSome = hasSomePermissions(['a', 'b'], ['VIEW']);
     expect(permissionSome).toBeTruthy();
     const permissionSomeScoped = hasSomePermissions(['b'], ['VIEW'], ['ALL']);
-    expect(permissionSomeScoped).toBeTruthy();
+    expect(permissionSomeScoped).toBeFalsy();
 
     const permissionAll = hasAllPermissions(['a', 'b'], ['VIEW']);
     expect(permissionAll).toBeFalsy();
     const permissionAllOk = hasAllPermissions(['a', 'b'], ['VIEW'], ['ALL']);
-    expect(permissionAllOk).toBeTruthy();
+    expect(permissionAllOk).toBeFalsy();
   });
 
   test('Test getJWT', () => {
