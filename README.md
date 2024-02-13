@@ -125,3 +125,7 @@ Argumentos:
 - logout: Limpia los datos de la sesión (Por el momento no envia solicitud al api para cerrar sesión)
 
 - getSessionData: Recupera los datos de la sesión de un usuario logueado
+
+- extractJWTDataFromSession: Recupera los datos del JWT que estan guardados en la sesión
+
+- extractJWTData: Recupera los datos del un JWT
