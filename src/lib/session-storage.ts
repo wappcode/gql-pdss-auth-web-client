@@ -1,4 +1,4 @@
-import { AuthSession, AuthSessionUser } from '../models';
+import { AuthSessionUser } from '../models';
 import { SessionData, SessionDataPermission } from '../models/auth-session-data';
 import { AuthSessionStorage, SessionDataStored } from '../models/auth-session-storage';
 import { getCookie, setCookie } from './cookies';
@@ -51,6 +51,24 @@ const setAuthSessionDataToBrowserStorage = (
   const dataStr = JSON.stringify(storedData);
   const key = getAuthStorageKey();
   storage.setItem(key, dataStr);
+};
+export const extractJWTData = <T>(jwt?: string): T | undefined => {
+  if (typeof jwt !== 'string' || jwt.length < 1) {
+    return undefined;
+  }
+  const jwtData = jwt.split('.');
+  try {
+    const dataDecoded = atob(jwtData[1]);
+    const data = JSON.parse(dataDecoded);
+    return data;
+  } catch (e) {
+    return undefined;
+  }
+};
+export const extractJWTDataFromSession = <T>(): T | undefined => {
+  const sessionData = getAuthSessionData();
+  const jwt = sessionData?.jwt;
+  return extractJWTData<T>(jwt);
 };
 export const getAuthSessionDataFromScript = (): SessionData | undefined => {
   if (!authSessiondataStored) {
@@ -106,26 +124,22 @@ export const getAuthSessionDataFromSessionStorage = () => {
 
 export const getAuthSessionDataFromCookies = (): SessionData | undefined => {
   const key = getAuthStorageKey();
-  const dataKey = `${key}__data`;
   const userKey = `${key}__user`;
   const rolesKey = `${key}__roles`;
   const permissionsKey = `${key}__permissions`;
   const jwtKey = `${key}__jwt`;
-  const dataStr = getCookie(dataKey);
   const userStr = getCookie(userKey);
   const rolesStr = getCookie(rolesKey);
   const permissionsStr = getCookie(permissionsKey);
   const jwt = getCookie(jwtKey);
-
-  const data = stringToJson<AuthSession>(dataStr);
   const user = stringToJson<AuthSessionUser>(userStr);
   const roles = stringToJson<string[]>(rolesStr);
   const permissions = stringToJson<SessionDataPermission[]>(permissionsStr);
 
-  if (!data || !user) {
+  if (!user) {
     return undefined;
   }
-  return { data, user, roles, permissions, jwt };
+  return { user, roles, permissions, jwt };
 };
 
 export const setAuthSessionDataToSessionStorage = (
@@ -142,15 +156,10 @@ export const setAuthSessionDataToLocalStorage = (
 };
 export const setAuthSessionDataToCookies = (data: SessionData, lifetimeInMiliSeconds: number) => {
   const key = getAuthStorageKey();
-  const sessionData = data.data;
   const user = data.user;
   const roles = data.roles ?? [];
   const permissions = data.permissions ?? [];
   const jwt = data.jwt;
-
-  const sessionDataStr = JSON.stringify(sessionData);
-  const sessionDataKey = `${key}__data`;
-  setCookie(sessionDataKey, sessionDataStr, lifetimeInMiliSeconds);
 
   const userStr = JSON.stringify(user);
   const userKey = `${key}__user`;

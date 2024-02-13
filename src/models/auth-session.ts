@@ -1,4 +1,4 @@
-export interface AuthSession {
+export interface AuthJWTData {
   /**
    * Issuer
    *

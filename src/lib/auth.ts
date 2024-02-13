@@ -205,54 +205,6 @@ export const getSessionDataFragment = (): GQLQueryObject => {
       scope
     }
     jwt
-    data{
-      iss
-      sub
-      aud
-      exp
-      nbf
-      iat
-      jti
-      name
-      given_name
-      family_name
-      middle_name
-      nickname
-      preferred_username
-      profile
-      picture
-      website
-      email
-      email_verified
-      gender
-      birthdate
-      zoneinfo
-      locale
-      phone_number
-      phone_number_verified
-      address
-      updated_at
-      nonce
-      auth_time
-      sid
-      scope
-      client_id
-      exi
-      roles
-      groups
-      entitlements
-      location
-      place_of_birth
-      nationalities
-      birth_family_name
-      birth_given_name
-      birth_middle_name
-      salutation
-      title
-      msisdn
-      also_known_as
-      
-    }
   }
   `;
   return fragment;

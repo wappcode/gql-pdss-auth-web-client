@@ -15,24 +15,22 @@ import {
   isSigned,
   login
 } from '../src/lib/auth';
-import { clearAuthSessionData, setAuthSessionData } from '../src/lib/session-storage';
-import { SessionData } from '../src/models';
+import {
+  clearAuthSessionData,
+  extractJWTDataFromSession,
+  setAuthSessionData
+} from '../src/lib/session-storage';
+import { AuthJWTData, SessionData } from '../src/models';
 import { API_URL, queryExecutor } from './query-executor';
 
 const sessionData: SessionData = {
-  data: {
-    iss: 'localhost',
-    sub: 'pancholopez',
-    preferred_username: 'pancho_lopez',
-    name: 'Pancho López'
-  },
   user: {
     firstName: 'Pancho',
     lastName: 'López',
     username: 'pancholopez',
     fullName: 'Pancho López'
   },
-  jwt: 'jwtsecure',
+  jwt: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3RpbWUiOjE3MDc3OTM4NzIsInN1YiI6InAubG9wZXoiLCJiaXJ0aF9mYW1pbHlfbmFtZSI6IkxcdTAwZjNwZXoiLCJiaXJ0aF9naXZlbl9uYW1lIjoiUGFuY2hvIiwiZW1haWwiOiJwLmxvcGV6QGRlbW8ubG9jYWwubGFuIiwiZXhpIjoxMjAwLCJleHAiOjE3MDc3OTUwNzIsImZhbWlseV9uYW1lIjoiTFx1MDBmM3BleiIsImdpdmVuX25hbWUiOiJQYW5jaG8iLCJpc3MiOiJsb2NhbGhvc3QiLCJqdGkiOiJsb2NhbGhvc3Q6OnAubG9wZXoiLCJuYW1lIjoiUGFuY2hvIExcdTAwZjNwZXoiLCJwaWN0dXJlIjpudWxsLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJwLmxvcGV6Iiwicm9sZXMiOltdLCJpYXQiOjE3MDc3OTM4NzJ9.epvDSGh4E20DRyVRA5WpH6kszDx458984cxuRIASjEg',
   roles: ['staff', 'publisher'],
   permissions: [
     {
@@ -172,5 +170,12 @@ describe('Tests generales para auth', async () => {
     setAuthSessionData(sessionData);
     const jwt = getJWT();
     expect(jwt).toBeTruthy();
+  });
+  test('Test extractJWTData', () => {
+    clearAuthSessionData();
+    setAuthSessionData(sessionData);
+    const jwtData = extractJWTDataFromSession<AuthJWTData>();
+    expect(jwtData).toBeTruthy();
+    expect(jwtData?.sub).toBe('p.lopez');
   });
 });
