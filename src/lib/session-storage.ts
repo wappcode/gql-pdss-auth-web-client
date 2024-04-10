@@ -154,12 +154,15 @@ export const setAuthSessionDataToLocalStorage = (
 ) => {
   setAuthSessionDataToBrowserStorage(window.localStorage, data, lifetimeInMiliSeconds);
 };
-export const setAuthSessionDataToCookies = (data: SessionData, lifetimeInMiliSeconds: number) => {
+export const setAuthSessionDataToCookies = (
+  data: SessionData | undefined,
+  lifetimeInMiliSeconds: number
+) => {
   const key = getAuthStorageKey();
-  const user = data.user;
-  const roles = data.roles ?? [];
-  const permissions = data.permissions ?? [];
-  const jwt = data.jwt;
+  const user = data?.user ?? '';
+  const roles = data?.roles ?? [];
+  const permissions = data?.permissions ?? [];
+  const jwt = data?.jwt ?? '';
 
   const userStr = JSON.stringify(user);
   const userKey = `${key}__user`;
@@ -224,8 +227,7 @@ export const clearAuthSessionDataToScript = () => {
   authSessiondataStored = undefined;
 };
 export const clearAuthSessionDataToCookies = () => {
-  const key = getAuthStorageKey();
-  setCookie(key, '', 0);
+  setAuthSessionDataToCookies(undefined, 0);
 };
 export const clearAuthSessionDataToLocalStorage = () => {
   const key = getAuthStorageKey();
