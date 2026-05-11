@@ -40,16 +40,16 @@ Libreria con utilidades para la api gql-pdss-auth
     const storageType = getAuthStorage();
 ```
 
-- setAuthStorageTimelife: Establece el tiempo en milisegundos en los que van a ser válidos los datos de la sesión después de haber sido inicializados.Solo se puede ejecutar una vez en la aplicación
+- setAuthStorageLifetime: Establece el tiempo en milisegundos en los que van a ser válidos los datos de la sesión después de haber sido inicializados.Solo se puede ejecutar una vez en la aplicación
 
 ```
-    setAuthStorageTimelife(20*60*1000); // establece la vigencia a 20 minutos
+    setAuthStorageLifetime(20*60*1000); // establece la vigencia a 20 minutos
 ```
 
-- getAuthStorageTimelife: Recupera el tiempo en milisegundos en los que van a ser válidos los datos de la sesión después de haber sido inicializados. Como valor predeterminado tiene 30 minutos
+- getAuthStorageLifetime: Recupera el tiempo en milisegundos en los que van a ser válidos los datos de la sesión después de haber sido inicializados. Como valor predeterminado tiene 30 minutos
 
 ```
-    const lifetime = getAuthStorageTimelife();
+    const lifetime = getAuthStorageLifetime();
 ```
 
 - setAuthSessionData: Establece los datos de la sesión utilizando los valores globales asignados para authStorageKey, authStorage y authStorageTimeLife.
@@ -74,29 +74,29 @@ Argumentos:
     clearAuthSessionData();
 ```
 
-- getAuthSessionDataFromScript: Recupera los datos de la sesión guardados en la variable global en el script utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
+- readSessionDataFromMemory: Recupera los datos de la sesión guardados en la variable global en el script utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
 
-- getAuthSessionDataFromLocalStorage: Recupera los datos de la sesión guardados en localStorage utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
+- readSessionDataFromLocalStorage: Recupera los datos de la sesión guardados en localStorage utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
 
-- getAuthSessionDataFromSessionStorage: Recupera los datos de la sesión guardados en sessionStorage utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
+- readSessionDataFromSessionStorage: Recupera los datos de la sesión guardados en sessionStorage utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
 
-- getAuthSessionDataFromCookies: Recupera los datos de la sesión guardados en cookies utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
+- readSessionDataFromCookies: Recupera los datos de la sesión guardados en cookies utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
 
-- setAuthSessionDataToSessionStorage: Guarda los datos de la sesión en la variable global en el script utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
+- writeSessionDataToSessionStorage: Guarda los datos de la sesión en la variable global en el script utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
 
-- setAuthSessionDataToLocalStorage: Guarda los datos de la sesión en localStorage utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
+- writeSessionDataToLocalStorage: Guarda los datos de la sesión en localStorage utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
 
-- setAuthSessionDataToCookies: Guarda los datos de la sesión en sessionStorage utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
+- writeSessionDataToCookies: Guarda los datos de la sesión en sessionStorage utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
 
-- setAuthSessionDataToScript: Guarda los datos de la sesión en cookies utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
+- writeSessionDataToMemory: Guarda los datos de la sesión en cookies utilizando los valores globales asignados para authStorageKey y authStorageTimeLife
 
-- clearAuthSessionDataToScript: Elimina los datos de la sesión guardados en la variable global en el script utilizando los valores globales asignados para authStorageKey.
+- clearSessionDataFromMemory: Elimina los datos de la sesión guardados en la variable global en el script utilizando los valores globales asignados para authStorageKey.
 
-- clearAuthSessionDataToCookies: Elimina los datos de la sesión guardados en cookies utilizando los valores globales asignados para authStorageKey.
+- clearSessionDataFromCookies: Elimina los datos de la sesión guardados en cookies utilizando los valores globales asignados para authStorageKey.
 
-- clearAuthSessionDataToLocalStorage: Elimina los datos de la sesión guardados en localStorage utilizando los valores globales asignados para authStorageKey.
+- clearSessionDataFromLocalStorage: Elimina los datos de la sesión guardados en localStorage utilizando los valores globales asignados para authStorageKey.
 
-- clearAuthSessionDataToSessionStorage: Elimina los datos de la sesión guardados en sessionStorage utilizando los valores globales asignados para authStorageKey.
+- clearSessionDataFromSessionStorage: Elimina los datos de la sesión guardados en sessionStorage utilizando los valores globales asignados para authStorageKey.
 
 - getAuthUser: Recupera los datos de un usuario (AuthSessionUser | undefined)
 
@@ -126,6 +126,4 @@ Argumentos:
 
 - getSessionData: Recupera los datos de la sesión de un usuario logueado
 
-- extractJWTDataFromSession: Recupera los datos del JWT que estan guardados en la sesión
-
-- extractJWTData: Recupera los datos del un JWT
+- parseJwtPayload: Recupera los datos del JWT

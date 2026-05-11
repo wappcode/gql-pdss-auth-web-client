@@ -17,7 +17,7 @@ import {
 } from '../src/lib/auth';
 import {
   clearAuthSessionData,
-  extractJWTDataFromSession,
+  parseJwtPayload,
   setAuthSessionData
 } from '../src/lib/session-storage';
 import { AuthJWTData, SessionData } from '../src/models';
@@ -174,7 +174,7 @@ describe('Tests generales para auth', async () => {
   test('Test extractJWTData', () => {
     clearAuthSessionData();
     setAuthSessionData(sessionData);
-    const jwtData = extractJWTDataFromSession<AuthJWTData>();
+    const jwtData = parseJwtPayload<AuthJWTData>(getJWT());
     expect(jwtData).toBeTruthy();
     expect(jwtData?.sub).toBe('p.lopez');
   });
