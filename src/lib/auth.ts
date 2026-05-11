@@ -6,9 +6,9 @@ import {
   queryDataToQueryObject,
   throwGQLErrors
 } from 'graphql-client-utilities';
-import { AuthSessionUser } from '../models';
-import { SessionData, SessionDataPermission } from '../models/auth-session-data';
+import { ResourcePermission } from '../models/auth-session-data';
 import { clearAuthSessionData, getAuthSessionData, setAuthSessionData } from './session-storage';
+import { AuthenticatedUser } from '../models/authenticated-user';
 
 /**
  * Determina si se ha iniciado sesión
@@ -19,20 +19,20 @@ export const isSigned = (): boolean => {
 };
 
 /**
- * Recupera los datos del usuario logueado
+ * Alias de getAuthSessionData 
  * @returns
  */
-export const getAuthUser = (): AuthSessionUser | undefined => {
-  const data = getAuthSessionData();
-  return data?.user;
+export const getUser = <T>(): T | undefined => {
+  const data = getAuthSessionData<T>();
+  return data;
 };
 
 /**
  * Recupera los roles relacionados al usuario logueado
  * @returns
  */
-export const getRoles = (): string[] => {
-  const data = getAuthSessionData();
+export const getRoles = <T extends { roles: string[] }>(): string[] => {
+  const data = getAuthSessionData<T>();
   const roles = data?.roles ?? [];
   return roles;
 };
@@ -42,8 +42,8 @@ export const getRoles = (): string[] => {
  * @param role
  * @returns
  */
-export const hasRole = (role: string): boolean => {
-  const data = getAuthSessionData();
+export const hasRole = <T extends { roles: string[] }>(role: string): boolean => {
+  const data = getAuthSessionData<T>();
   const roles = data?.roles ?? [];
   return roles.includes(role);
 };
@@ -53,9 +53,8 @@ export const hasRole = (role: string): boolean => {
  * @param roles
  * @returns
  */
-export const hasSomeRoles = (roles: string[]): boolean => {
-  const data = getAuthSessionData();
-  const userRoles = data?.roles ?? [];
+export const hasAnyRole = <T extends { roles: string[] }>(roles: string[]): boolean => {
+  const userRoles = getRoles<T>();
   return userRoles.some((role) => roles.includes(role));
 };
 
@@ -64,19 +63,33 @@ export const hasSomeRoles = (roles: string[]): boolean => {
  * @param roles
  * @returns
  */
-export const hasAllRoles = (roles: string[]): boolean => {
-  const data = getAuthSessionData();
-  const userRoles = data?.roles ?? [];
+export const hasAllRoles = <T extends { roles: string[] }>(roles: string[]): boolean => {
+  const userRoles = getRoles<T>();
   return userRoles.every((role) => roles.includes(role));
 };
+/**
+ * Mapea un string con formato "resource:value:scope" a un SessionDataPermission
+ * @param permissionString
+ * @returns
+ */
+export const mapStringToPermission = (permissionString: string): ResourcePermission => {
+  const [resource, value, scope] = permissionString.split(':');
+  return {
+    resource,
+    value,
+    scope: scope ?? undefined,
+    access: 'ALLOW'
+  };
+};
+
 /**
  * Recupera los permisos del usuario
  * @returns
  */
-export const getPermissions = (): SessionDataPermission[] => {
-  const data = getAuthSessionData();
-  const permissions = data?.permissions ?? [];
-  return permissions;
+export const getPermissions = <T extends { permissions: string[] }>(): ResourcePermission[] => {
+  const data = getAuthSessionData<T>();
+  const permissions = (data?.permissions ?? []);
+  return permissions.map(mapStringToPermission);
 };
 
 /**
@@ -86,16 +99,15 @@ export const getPermissions = (): SessionDataPermission[] => {
  * @param permissionValue
  * @returns
  */
-export const findPermission = (
+export const findPermission = <T extends { permissions: string[] }>(
   resource: string,
   permissionValue: string
-): SessionDataPermission | undefined => {
-  const data = getAuthSessionData();
-  const userPermissions = data?.permissions ?? [];
+): ResourcePermission | undefined => {
+  const userPermissions = getPermissions<T>();
   const permission = userPermissions.find(
-    (perm) => perm.resource == resource && (perm.value == permissionValue || perm.value == 'ALL')
+    (perm) => perm.resource == resource && (perm.value == permissionValue || perm.value.trim().toUpperCase() == 'ALL')
   );
-  return permission?.access == 'ALLOW' ? permission : undefined;
+  return permission?.access.trim().toUpperCase() == 'ALLOW' ? permission : undefined;
 };
 /**
  * Recupera true si el usuario tiene permisos para el recurso
@@ -116,7 +128,7 @@ export const hasPermission = (
   if (typeof scope === 'string' && scope.length > 0 && scope != permission.scope) {
     return false;
   }
-  return permission?.access == 'ALLOW';
+  return permission?.access.trim().toUpperCase() == 'ALLOW';
 };
 
 /**
@@ -126,7 +138,7 @@ export const hasPermission = (
  * @param scopes
  * @returns
  */
-export const hasSomePermissions = (
+export const hasAnyPermission = (
   resources: string[],
   permissionValues: string[],
   scopes?: string[]
@@ -175,48 +187,31 @@ export const hasAllPermissions = (
 
   return result;
 };
-/**
- *
- * @returns Recupera el JWT asignado a la sesión
- */
-export const getJWT = (): string | undefined => {
-  const data = getAuthSessionData();
 
-  return data?.jwt;
-};
 
-export const getSessionDataFragment = (): GQLQueryObject => {
+export const getAuthenticatedUserFragment = (): GQLQueryObject => {
   const fragment = gqlparse`
   fragment sessionData on SessionData {
-    user{
-      fullName
-      firstName
-      lastName
-      username 
-      email
-      picture
-   
-    }
-    roles,
-    permissions{
-      resource
-      access
-      value
-      scope
-    }
-    jwt
+    fullName
+    firstName
+    lastName
+    username
+    email
+    picture
+    roles
+    permissions
   }
   `;
   return fragment;
 };
 
-export const login = async (
+export const login = async <T>(
   queryExecutor: QueryExecutor,
   username: string,
   password: string,
   fragment?: GQLQueryData
-): Promise<SessionData | undefined> => {
-  const finalFragment = fragment ? queryDataToQueryObject(fragment) : getSessionDataFragment();
+): Promise<T | undefined> => {
+  const finalFragment = fragment ? queryDataToQueryObject(fragment) : getAuthenticatedUserFragment();
   const query = gqlparse`
   query QueryLogin($username: String!, $password: String!){
   
@@ -229,7 +224,7 @@ export const login = async (
     ${finalFragment.query}
   `;
 
-  return queryExecutor<{ sessionData: SessionData }>(query, { username, password })
+  return queryExecutor<{ sessionData: T | undefined }>(query, { username, password })
     .then(throwGQLErrors)
     .then((result) => result.data.sessionData)
     .then(setAuthSessionData);
@@ -239,11 +234,19 @@ export const logout = async (): Promise<void> => {
   clearAuthSessionData();
 };
 
-export const getSessionData = async (
+
+/**
+ * Recupera el usuario autenticado realizando una consulta al servidor con la api gql-pdss-auth
+ * Para otras apis usar query personalizado 
+ * @param queryExecutor 
+ * @param fragment 
+ * @returns 
+ */
+export const getAuthenticatedUser = async (
   queryExecutor: QueryExecutor,
   fragment?: GQLQueryData
-): Promise<SessionData | undefined> => {
-  const finalFragment = fragment ? queryDataToQueryObject(fragment) : getSessionDataFragment();
+): Promise<AuthenticatedUser | undefined> => {
+  const finalFragment = fragment ? queryDataToQueryObject(fragment) : getAuthenticatedUserFragment();
   const query = gqlparse`
   query QuerySignedUser{
     sessionData: getSessionData{
@@ -252,7 +255,7 @@ export const getSessionData = async (
   }
   ${finalFragment.query}
   `;
-  return queryExecutor<{ sessionData: SessionData }>(query)
+  return queryExecutor<{ sessionData: AuthenticatedUser | undefined }>(query)
     .then(throwGQLErrors)
     .then((result) => result.data.sessionData)
     .then(setAuthSessionData);

@@ -1,4 +1,3 @@
-import { SessionData } from "./auth-session-data";
 
 export type AuthSessionStorage =
   | "SCRIPT"
@@ -6,7 +5,7 @@ export type AuthSessionStorage =
   | "SESSIONSTORAGE"
   | "COOKIES";
 
-export type SessionDataStored = {
-  data: SessionData;
+export type SessionDataStored<T> = {
+  data: T;
   expires: Date;
 };

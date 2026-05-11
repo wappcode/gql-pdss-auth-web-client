@@ -1,15 +1,8 @@
-import { AuthSessionUser } from './auth-user';
 
-export type SessionDataPermissionAccess = 'DENY' | 'ALLOW';
-export interface SessionDataPermission {
+export type PermissionAccess = 'DENY' | 'ALLOW';
+export interface ResourcePermission {
   resource: string;
-  access: SessionDataPermissionAccess;
+  access: PermissionAccess;
   value: string;
   scope?: string;
-}
-export interface SessionData {
-  user: AuthSessionUser;
-  roles?: string[];
-  permissions?: SessionDataPermission[];
-  jwt?: string;
 }
