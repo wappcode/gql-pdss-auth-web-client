@@ -245,6 +245,7 @@ export const logout = async (queryExecutor: QueryExecutor): Promise<boolean> => 
       }
       return  sucess;
     });
+  };
 
 
 /**
