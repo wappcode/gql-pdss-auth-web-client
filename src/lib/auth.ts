@@ -230,9 +230,21 @@ export const login = async <T>(
     .then(setAuthSessionData);
 };
 
-export const logout = async (): Promise<void> => {
-  clearAuthSessionData();
-};
+export const logout = async (queryExecutor: QueryExecutor): Promise<boolean> => {
+  const query = gqlparse`
+  mutation MutationLogout{
+    logout
+  }
+  `;
+  return queryExecutor<{ logout: boolean }>(query)
+    .then(throwGQLErrors)
+    .then((result) => result.data.logout)
+    .then(sucess => {
+      if(sucess){
+        clearAuthSessionData();
+      }
+      return  sucess;
+    });
 
 
 /**
