@@ -191,7 +191,7 @@ export const hasAllPermissions = (
 
 export const getAuthenticatedUserFragment = (): GQLQueryObject => {
   const fragment = gqlparse`
-  fragment sessionData on SessionData {
+  fragment sessionData on AuthenticatedUser {
     fullName
     firstName
     lastName
